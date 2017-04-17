@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<struts>
+	<contant name="struts.devMode" value="true"></contant>
+	<contant name="struts.ui.theme" value="simple"></contant>  <!-- 修改主题 -->
+	<!-- 开启静态方法调用 -->
+	<contant name="struts.ognl.allowStaticMethodAccess" value="true"></contant>
+	<!-- 自定义拦截器的配置 -->
+	<package name="mydefault" extends="struts-default" abstract="true">
+		<interceptors>
+			<interceptor name="CheckLoginInterceptor" class="com.jiangsu.web.interceptor.CheckLoginInterceptor"></interceptor>
+			<interceptor-stack name="mydefaultStack">
+				<interceptor-ref name="defaultStack"></interceptor-ref>
+				<interceptor-ref name="CheckLoginInterceptor"></interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		<!-- 重置默认拦截器栈 -->
+		<default-interceptor-ref name="myDefaultStack"></default-interceptor-ref>
+		<!-- 全局结果视图 -->
+		<global-results>
+			<result name="login">/login/login.jsp</result>
+		</global-results>
+	</package>
+	<package name="p1" extends="struts-default">
+		<!-- 用户登录的动作 -->
+		<action name="login" class="com.jiangsu.web.action.UserAction" method="login">
+			<result>/login/home.jsp</result>  <!-- 登录成功可以使用重定向 -->
+			<result name="input">/login/login.jsp</result>
+		</action>
+	</package>
+	
+	<package name="user" extends="mydefault" namespace="/user">
+		<!-- 用户添加 -->
+		<action name="add" class="com.jiangsu.web.action.UserAction" method="add">
+			<result>/user/list.jsp</result>
+			<!-- 配置上传文件扩展名限制 -->
+			<interceptor-ref name="default-stack">
+				<param name="fileUpload.allowedExtension">.doc,.docx</param>
+			</interceptor-ref>
+			<result name="input">/user/add.jsp</result>
+		</action>
+		
+		<!-- 查询所有用户 -->
+		<action name="findAll" class="com.jiangsu.web.action.UserAction" method="findAll">
+			<result>/user/list.jsp</result> 
+		</action>
+		
+		<!-- 根据ID查询用户 -->
+		<action name="findUserById" class="com.jiangsu.web.action.UserAction" method="findUserById">
+			<result>/user/view.jsp</result> 
+		</action>
+		
+		<!-- 下载文件-->
+		<action name="download" class="com.jiangsu.web.action.UserAction" method="download">
+			<result type="stream"></result> 
+				<!-- 给stream的结果类型注入参数：1.流的信息2.告知浏览器下载方式打开3.告知浏览器相应正文的MIME类型 -->
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename=${@java.net.URLEncoder#encode(oldFileName,"UTF-8")}</param>
+				<param name="contentType">application/octet-stream</param>
+		</action>
+		
+		<!-- 根据ID删除用户 -->
+		<action name="delete" class="com.jiangsu.web.action.UserAction" method="delete">
+			<!-- 删除成功后重新刷新用户列表，重定向到一个动作 -->
+			<result type="redirectAction">findAll</result> 
+		</action>
+		
+		<!-- 根据ID编辑用户 -->
+		<action name="editUI" class="com.jiangsu.web.action.UserAction" method="editUI">
+			<!-- 编辑成功后重新刷新用户列表，重定向到一个动作 -->
+			<result>user/edit.jsp</result> 
+		</action>
+		
+		<!-- 编辑用户 -->
+		<action name="edit" class="com.jiangsu.web.action.UserAction" method="edit">
+			<!--编辑成功之后回到显示列表 -->
+			<result type="redirectAction">findAll</result> 
+			<!-- 编辑失败，数据回显 -->
+			<result typr="input">user/edit.jsp</result>
+		</action>
+		
+		<!-- 多条件用户查询 -->
+		<action name="findUserByCondition" class="com.jiangsu.web.action.UserAction" method="findUserByCondition">
+			<!-- 删除成功后重新刷新用户列表，重定向到一个动作 -->
+			<result>user/list.jsp</result> 
+		</action>
+		
+	</package>
+</struts>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
